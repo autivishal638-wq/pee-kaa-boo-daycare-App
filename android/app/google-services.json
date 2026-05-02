@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1020726856378",
+    "project_id": "pee-ka-boo-play-house",
+    "storage_bucket": "pee-ka-boo-play-house.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1020726856378:android:65b110bab3b1f3f2651083",
+        "android_client_info": {
+          "package_name": "com.peekaboo.playhouse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZzROimo1xRUCxCIko7QeqHAYxpWcMVv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
