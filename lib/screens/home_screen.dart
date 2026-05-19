@@ -1,9 +1,15 @@
 // filepath: pee_ka_boo/lib/screens/home_screen.dart
 
 import 'package:flutter/material.dart';
-import 'child_list_screen.dart';
+import '../models/attendance.dart';
+import '../models/child.dart';
+import '../models/payment.dart';
+import '../services/firebase_service.dart';
 import 'attendance_screen.dart';
+import 'child_form_screen.dart';
+import 'child_list_screen.dart';
 import 'fee_screen.dart';
+import 'message_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -79,232 +85,280 @@ class DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Colors.pink[400],
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: const Icon(Icons.child_care, color: Colors.white),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Pee-Kaa-Boo',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.pink,
-                            ),
-                          ),
-                          if (isAdmin) ...[
-                            const SizedBox(width: 8),
+    return StreamBuilder<List<Child>>(
+      stream: FirebaseService.getChildren(),
+      builder: (context, childSnapshot) {
+        final totalChildren = childSnapshot.data?.length ?? 0;
+
+        return StreamBuilder<List<Attendance>>(
+          stream: FirebaseService.getAttendanceForDate(DateTime.now()),
+          builder: (context, attendanceSnapshot) {
+            final attendances = attendanceSnapshot.data ?? [];
+            final presentCount = attendances.where((a) => a.status == 'Present').length;
+            final absentCount = attendances.where((a) => a.status == 'Absent').length;
+
+            return StreamBuilder<List<Payment>>(
+              stream: FirebaseService.getPendingPayments(),
+              builder: (context, paymentSnapshot) {
+                final pendingAmount = paymentSnapshot.data
+                        ?.fold<double>(0.0, (sum, payment) => sum + (payment.totalAmount - payment.paidAmount))
+                        .toDouble() ??
+                    0.0;
+                final pendingAmountText = '₹${pendingAmount.round()}';
+
+                return SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header
+                        Row(
+                          children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
+                              width: 50,
+                              height: 50,
                               decoration: BoxDecoration(
-                                color: Colors.amber,
-                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.pink[400],
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
+                              child: const Icon(Icons.child_care, color: Colors.white),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.star,
-                                    size: 12,
-                                    color: Colors.white,
+                                  Row(
+                                    children: [
+                                      const Text(
+                                        'Pee-Kaa-Boo',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.pink,
+                                        ),
+                                      ),
+                                      if (isAdmin) ...[
+                                        const SizedBox(width: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.amber,
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.star,
+                                                size: 12,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                'Admin',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Admin',
+                                  const Text(
+                                    'Play House',
                                     style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                      fontSize: 14,
+                                      color: Colors.grey,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            IconButton(
+                              icon: const Icon(Icons.notifications_outlined),
+                              onPressed: () {},
+                            ),
                           ],
-                        ],
-                      ),
-                      const Text(
-                        'Play House',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.notifications_outlined),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            
-            // Today's Stats
-            const Text(
-              "Today's Overview",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.people,
-                    label: 'Total Children',
-                    value: '12',
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.check_circle,
-                    label: 'Present Today',
-                    value: '10',
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.warning,
-                    label: 'Absent',
-                    value: '2',
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.payment,
-                    label: 'Pending Fees',
-                    value: '₹15K',
-                    color: Colors.red,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            
-            // Quick Actions
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.person_add,
-                    label: 'Add Child',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ChildFormScreen(),
+                        const SizedBox(height: 24),
+                        
+                        // Today's Stats
+                        const Text(
+                          "Today's Overview",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      );
-                    },
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _StatCard(
+                                icon: Icons.people,
+                                label: 'Total Children',
+                                value: totalChildren.toString(),
+                                color: Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _StatCard(
+                                icon: Icons.check_circle,
+                                label: 'Present Today',
+                                value: presentCount.toString(),
+                                color: Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _StatCard(
+                                icon: Icons.warning,
+                                label: 'Absent',
+                                value: absentCount.toString(),
+                                color: Colors.orange,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _StatCard(
+                                icon: Icons.payment,
+                                label: 'Pending Fees',
+                                value: pendingAmountText,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        
+                        // Quick Actions
+                        const Text(
+                          'Quick Actions',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.person_add,
+                                label: 'Add Child',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const ChildFormScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.qr_code_scanner,
+                                label: 'Mark Attendance',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AttendanceScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.receipt_long,
+                                label: 'Create Invoice',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const FeeScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _ActionButton(
+                                icon: Icons.send,
+                                label: 'Send Message',
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const MessageScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Recent Activity
+                        const Text(
+                          'Recent Activity',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _ActivityItem(
+                          icon: Icons.person_add,
+                          title: 'New child registered',
+                          subtitle: 'Aarav Sharma - 2 hours ago',
+                          color: Colors.green,
+                        ),
+                        _ActivityItem(
+                          icon: Icons.payment,
+                          title: 'Payment received',
+                          subtitle: '₹5,400 from Priya Mehta - 5 hours ago',
+                          color: Colors.blue,
+                        ),
+                        _ActivityItem(
+                          icon: Icons.calendar_today,
+                          title: 'Attendance marked',
+                          subtitle: '10 children present today - Morning',
+                          color: Colors.purple,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.qr_code_scanner,
-                    label: 'Mark Attendance',
-                    onTap: () {},
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.receipt_long,
-                    label: 'Create Invoice',
-                    onTap: () {},
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.send,
-                    label: 'Send Message',
-                    onTap: () {},
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            
-            // Recent Activity
-            const Text(
-              'Recent Activity',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _ActivityItem(
-              icon: Icons.person_add,
-              title: 'New child registered',
-              subtitle: 'Aarav Sharma - 2 hours ago',
-              color: Colors.green,
-            ),
-            _ActivityItem(
-              icon: Icons.payment,
-              title: 'Payment received',
-              subtitle: '₹5,400 from Priya Mehta - 5 hours ago',
-              color: Colors.blue,
-            ),
-            _ActivityItem(
-              icon: Icons.calendar_today,
-              title: 'Attendance marked',
-              subtitle: '10 children present today - Morning',
-              color: Colors.purple,
-            ),
-          ],
-        ),
-      ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -472,21 +526,3 @@ class _ActivityItem extends StatelessWidget {
   }
 }
 
-// Placeholder for child form - will be implemented
-class ChildFormScreen extends StatelessWidget {
-  const ChildFormScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add New Child'),
-        backgroundColor: Colors.pink[400],
-        foregroundColor: Colors.white,
-      ),
-      body: const Center(
-        child: Text('Child Registration Form'),
-      ),
-    );
-  }
-}
