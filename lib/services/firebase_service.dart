@@ -1,5 +1,6 @@
 // filepath: pee_ka_boo/lib/services/firebase_service.dart
 
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uuid/uuid.dart';
@@ -22,7 +23,7 @@ class FirebaseService {
       );
       return result.user;
     } catch (e) {
-      print('Sign in error: $e');
+      debugPrint('Sign in error: $e');
       return null;
     }
   }
@@ -35,7 +36,7 @@ class FirebaseService {
       );
       return result.user;
     } catch (e) {
-      print('Sign up error: $e');
+      debugPrint('Sign up error: $e');
       return null;
     }
   }

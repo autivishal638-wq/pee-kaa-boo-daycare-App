@@ -230,7 +230,7 @@ class _PaymentCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withAlpha((0.1 * 255).round()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -330,7 +330,7 @@ class _PaymentCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: paymentMethod,
+              initialValue: paymentMethod,
               decoration: const InputDecoration(labelText: 'Payment Method'),
               items: ['Cash', 'UPI', 'Bank Transfer', 'Google Pay', 'PhonePe']
                   .map((m) => DropdownMenuItem(value: m, child: Text(m)))
@@ -423,7 +423,7 @@ class _CreateInvoiceSheetState extends State<_CreateInvoiceSheet> {
                 if (!snapshot.hasData) return const CircularProgressIndicator();
                 final children = snapshot.data!.docs;
                 return DropdownButtonFormField<String>(
-                  value: _selectedChildId,
+                  initialValue: _selectedChildId,
                   decoration: const InputDecoration(labelText: 'Select Child'),
                   items: children.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;

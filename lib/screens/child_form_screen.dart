@@ -400,7 +400,7 @@ class _ChildFormScreenState extends State<ChildFormScreen> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: _gender,
+                    initialValue: _gender,
                     decoration: const InputDecoration(labelText: 'Gender'),
                     items: ['Male', 'Female', 'Other']
                         .map((g) => DropdownMenuItem(value: g, child: Text(g)))
@@ -615,7 +615,7 @@ class _ChildFormScreenState extends State<ChildFormScreen> {
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
-                    value: _timingType,
+                    initialValue: _timingType,
                     decoration:
                         const InputDecoration(labelText: 'Select Timing'),
                     items: ['Full Day', 'Half Day', 'Custom Hours']

@@ -1,7 +1,6 @@
 // filepath: pee_ka_boo/lib/screens/settings_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 import '../services/firebase_service.dart';
 

@@ -1,12 +1,10 @@
 // filepath: pee_ka_boo/lib/screens/home_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'child_list_screen.dart';
 import 'attendance_screen.dart';
 import 'fee_screen.dart';
 import 'settings_screen.dart';
-import '../services/firebase_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isAdmin;
@@ -333,7 +331,7 @@ class _StatCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withAlpha((0.1 * 255).round()),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -431,7 +429,7 @@ class _ActivityItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withAlpha((0.1 * 255).round()),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -442,7 +440,7 @@ class _ActivityItem extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha((0.1 * 255).round()),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: color, size: 20),
