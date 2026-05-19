@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import '../services/firebase_service.dart';
 
 class ChildFormScreen extends StatefulWidget {
   final String? childId; // For editing existing child
@@ -64,8 +63,7 @@ class _ChildFormScreenState extends State<ChildFormScreen> {
 
   // Billing
   static const double _fullDayRatePerHour = 1200;
-  static const double _partTimeRatePerHour = 70;
-  static const int _workingDaysPerMonth = 20;
+  static const double _partTimeRatePerHour = 80;
   int _registeredHours = 8;
   final _dayCareChargesController = TextEditingController(text: '9600');
   final _mealChargesController = TextEditingController(text: '0');
@@ -179,9 +177,10 @@ class _ChildFormScreenState extends State<ChildFormScreen> {
 
   void _calculateDayCareCharges() {
     double dayCareCharges;
-    final int workingDays = _selectedDays.isEmpty ? 0 : _selectedDays.length * 4;
+    final int selectedDaysCount = _selectedDays.isEmpty ? 0 : _selectedDays.length;
+    final int workingDays =  selectedDaysCount * 4;
 
-    if (workingDays == 5) {
+    if (selectedDaysCount == 5) {
       // Full Day rate: ₹1200 × hours
       dayCareCharges = _fullDayRatePerHour * _registeredHours;
     } else {
